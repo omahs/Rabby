@@ -37,12 +37,12 @@ import { setPopupIcon, wait } from './utils';
 import { getSentryEnv } from '@/utils/env';
 import { matomoRequestEvent } from '@/utils/matomo-request';
 
-// ReactGA.initialize('UA-199755108-3');
-// // eslint-disable-next-line @typescript-eslint/no-empty-function
-// ga('set', 'checkProtocolTask', function () {});
-// ga('set', 'appName', 'Rabby');
-// ga('set', 'appVersion', process.env.release);
-// ga('require', 'displayfeatures');
+ReactGA.initialize('UA-199755108-3', { debug: true });
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+ReactGA.set({ checkProtocolTask: function () {} });
+ReactGA.set({ appName: 'Rabby' });
+ReactGA.set({ appVersion: process.env.release });
+// ReactGA.plugin.require('displayfeatures');
 
 dayjs.extend(utc);
 
