@@ -36,6 +36,7 @@ import utc from 'dayjs/plugin/utc';
 import { setPopupIcon, wait } from './utils';
 import { getSentryEnv } from '@/utils/env';
 import { matomoRequestEvent } from '@/utils/matomo-request';
+import ReactGA from 'react-ga';
 
 ReactGA.initialize('UA-199755108-3', { debug: true });
 // eslint-disable-next-line @typescript-eslint/no-empty-function
