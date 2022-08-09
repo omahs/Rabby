@@ -8,6 +8,7 @@ import {
   FeeMarketEIP1559Transaction,
 } from '@ethereumjs/tx';
 import HDKey from 'hdkey';
+import { initHDKeyring, invokeHDKeyring } from './hd-proxy';
 
 const keyringType = 'Onekey Hardware';
 const hdPathString = "m/44'/60'/0'/0";
@@ -34,11 +35,16 @@ class OneKeyKeyring extends EventEmitter {
   unlockedAccount = 0;
   paths = {};
   hdPath = '';
+  keyringId: string = '';
 
   constructor(opts = {}) {
     super();
     this.deserialize(opts);
-    OneKeyConnect.manifest(ONEKEY_CONNECT_MANIFEST);
+    this.init();
+  }
+
+  private async init() {
+    this.keyringId = await initHDKeyring('ONEKEY');
   }
 
   serialize(): Promise<any> {
@@ -70,10 +76,16 @@ class OneKeyKeyring extends EventEmitter {
       return Promise.resolve('already unlocked');
     }
     return new Promise((resolve, reject) => {
-      OneKeyConnect.getPublicKey({
-        path: this.hdPath,
-        coin: 'ETH',
-      })
+      invokeHDKeyring(this.keyringId, 'getPublicKey', [
+        {
+          path: this.hdPath,
+          coin: 'ETH',
+        },
+      ])
+        // OneKeyConnect.getPublicKey({
+        //   path: this.hdPath,
+        //   coin: 'ETH',
+        // })
         .then((response) => {
           if (response.success) {
             this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
@@ -210,24 +222,27 @@ class OneKeyKeyring extends EventEmitter {
         .then((status) => {
           setTimeout(
             (_) => {
-              OneKeyConnect.ethereumSignTransaction({
-                path: this._pathFromAddress(address),
-                transaction: {
-                  to: tx.to!.toString(),
-                  value: `0x${tx.value.toString('hex')}`,
-                  data: this._normalize(tx.data),
-                  chainId: tx.common.chainIdBN().toNumber(),
-                  nonce: `0x${tx.nonce.toString('hex')}`,
-                  gasLimit: `0x${tx.gasLimit.toString('hex')}`,
-                  gasPrice: `0x${
-                    (tx as Transaction).gasPrice
-                      ? (tx as Transaction).gasPrice.toString('hex')
-                      : (tx as FeeMarketEIP1559Transaction).maxFeePerGas.toString(
-                          'hex'
-                        )
-                  }`,
+              invokeHDKeyring(this.keyringId, 'ethereumSignTransaction', [
+                {
+                  // OneKeyConnect.ethereumSignTransaction({
+                  path: this._pathFromAddress(address),
+                  transaction: {
+                    to: tx.to!.toString(),
+                    value: `0x${tx.value.toString('hex')}`,
+                    data: this._normalize(tx.data),
+                    chainId: tx.common.chainIdBN().toNumber(),
+                    nonce: `0x${tx.nonce.toString('hex')}`,
+                    gasLimit: `0x${tx.gasLimit.toString('hex')}`,
+                    gasPrice: `0x${
+                      (tx as Transaction).gasPrice
+                        ? (tx as Transaction).gasPrice.toString('hex')
+                        : (tx as FeeMarketEIP1559Transaction).maxFeePerGas.toString(
+                            'hex'
+                          )
+                    }`,
+                  },
                 },
-              })
+              ])
                 .then((response) => {
                   if (response.success) {
                     const txData = tx.toJSON();
@@ -284,11 +299,14 @@ class OneKeyKeyring extends EventEmitter {
         .then((status) => {
           setTimeout(
             (_) => {
-              OneKeyConnect.ethereumSignMessage({
-                path: this._pathFromAddress(withAccount),
-                message: ethUtil.stripHexPrefix(message),
-                hex: true,
-              })
+              invokeHDKeyring(this.keyringId, 'ethereumSignMessage', [
+                {
+                  // OneKeyConnect.ethereumSignMessage({
+                  path: this._pathFromAddress(withAccount),
+                  message: ethUtil.stripHexPrefix(message),
+                  hex: true,
+                },
+              ])
                 .then((response: any) => {
                   if (response.success) {
                     if (
@@ -358,11 +376,14 @@ class OneKeyKeyring extends EventEmitter {
           setTimeout(
             (_) => {
               try {
-                OneKeyConnect.ethereumSignMessageEIP712({
-                  path: this._pathFromAddress(address),
-                  version,
-                  data: typedData,
-                })
+                invokeHDKeyring(this.keyringId, 'ethereumSignMessageEIP712', [
+                  {
+                    // OneKeyConnect.ethereumSignMessageEIP712({
+                    path: this._pathFromAddress(address),
+                    version,
+                    data: typedData,
+                  },
+                ])
                   .then((response) => {
                     if (response.success) {
                       if (
