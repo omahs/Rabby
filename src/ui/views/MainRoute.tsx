@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import ReactGA, { ga } from 'react-ga';
 import { PrivateRoute } from 'ui/component';
 
 import Welcome from './Welcome';
@@ -64,7 +63,6 @@ declare global {
 }
 
 const LogPageView = () => {
-  ReactGA.pageview(window.location.hash);
   if (window._paq) {
     window._paq.push(['setCustomUrl', window.location.hash.replace(/#/, '')]);
     window._paq.push(['trackPageView']);

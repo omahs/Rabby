@@ -630,7 +630,6 @@ const Dashboard = () => {
                   <IconArrowRight className="ml-8" />
                 </Popover>
               </div>
-
               <Copy
                 onClick={() => {
                   matomoRequestEvent({
