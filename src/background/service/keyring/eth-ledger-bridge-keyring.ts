@@ -422,7 +422,7 @@ class LedgerBridgeKeyring extends EventEmitter {
               setTimeout(() => {
                 eventBus.emit(EVENTS.broadcastToUI, {
                   method: EVENTS.LEDGER.REJECTED,
-                  params: e.toString() || 'Ledger: Unknown error',
+                  params: e.message ?? e.toString() ?? 'Ledger: Unknown error',
                 });
               }, 500);
             });
@@ -466,7 +466,7 @@ class LedgerBridgeKeyring extends EventEmitter {
             setTimeout(() => {
               eventBus.emit(EVENTS.broadcastToUI, {
                 method: EVENTS.LEDGER.REJECTED,
-                params: e.toString() || 'Ledger: Unknown error',
+                params: e.message ?? e.toString() ?? 'Ledger: Unknown error',
               });
             }, 500);
           });
