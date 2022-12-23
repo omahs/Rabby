@@ -766,6 +766,7 @@ const SignTx = ({ params, origin }: SignTxProps) => {
   const [isLedger, setIsLedger] = useState(false);
   const [useLedgerLive, setUseLedgerLive] = useState(false);
   const hasConnectedLedgerHID = useLedgerDeviceConnected();
+  const [isSigning, setIsSigning] = useState(false);
 
   const gaEvent = async (type: 'allow' | 'cancel') => {
     const ga:
@@ -1212,14 +1213,18 @@ const SignTx = ({ params, origin }: SignTxProps) => {
       action: 'Submit',
       label: currentAccount.brandName,
     });
-    resolveApproval({
-      ...transaction,
-      nonce: realNonce || tx.nonce,
-      gas: gasLimit,
-      isSend,
-      traceId: securityCheckDetail?.trace_id,
-      signingTxId: approval.signingTxId,
-    });
+    setIsSigning(true);
+    resolveApproval(
+      {
+        ...transaction,
+        nonce: realNonce || tx.nonce,
+        gas: gasLimit,
+        isSend,
+        traceId: securityCheckDetail?.trace_id,
+        signingTxId: approval.signingTxId,
+      },
+      true
+    );
   };
 
   const handleGasChange = (gas: GasSelectorResponse) => {
@@ -1695,6 +1700,7 @@ const SignTx = ({ params, origin }: SignTxProps) => {
                       >
                         <div>
                           <Button
+                            loading={isSigning}
                             type="primary"
                             size="large"
                             className="w-[172px]"
@@ -1721,7 +1727,7 @@ const SignTx = ({ params, origin }: SignTxProps) => {
                           !forceProcess ||
                           securityCheckStatus === 'loading'
                         }
-                        loading={isGnosisAccount ? !safeInfo : false}
+                        loading={isGnosisAccount ? !safeInfo : isSigning}
                       >
                         {t(submitText)}
                       </Button>
